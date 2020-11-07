@@ -6,7 +6,7 @@ const config = require('./config.json');
 var all_data={"slack": {}, "hackathon": {}, "summit": {"count": 4}};
 
 function craw_slack() {
-  request('https://g0v-slack-archive.g0v.ronny.tw/index/count', function (error, response, body) {
+  request(config.slack_api, function (error, response, body) {
     if (!error && response.statusCode == 200) {
       var _data = JSON.parse(body);
       all_data['slack'] = _data;
@@ -14,7 +14,7 @@ function craw_slack() {
   });
 }
 function craw_database() {
-  request('https://docs.google.com/spreadsheets/d/e/2PACX-1vT0oqWKBwSjyUo5k9uPTJItYkSpxZmpz0QFH65myqXasM9K7ldzuEY1eN6lGElTKlz52TozB94Os7oG/pubhtml?gid=1563040282&single=true', function (error, response, body) {
+  request(config.g0v_database, function (error, response, body) {
     if (!error && response.statusCode == 200) {
       var $ = cheerio.load(body);
       all_data['hackathon']['proposals'] = $('tr').length - 3;
