@@ -1,8 +1,7 @@
 {
   "name": "g0v-dashboard",
   "version": "1.0.0",
-  "description": "",
-  "main": "",
+  "description": "g0v dashboard",
   "scripts": {
     "start": "node index.js"
   },

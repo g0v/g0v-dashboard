@@ -16,11 +16,15 @@ function craw_slack() {
 function craw_database() {
   request(config.g0v_database, function (error, response, body) {
     if (!error && response.statusCode == 200) {
+      //console.log(body);
       var $ = cheerio.load(body);
       all_data['hackathon']['proposals'] = $('tr').length - 3;
       var last_row = $($('tr')[$('tr').length-1]);
       all_data['hackathon']['count'] = Number($($('td', last_row)[1]).text());
       all_data['hackathon']['current_title'] = $($('td', last_row)[2]).text();
+    }
+    else {
+        console.log("g0v database error");
     }
   });
 }
