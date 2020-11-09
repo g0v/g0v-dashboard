@@ -1,40 +1,21 @@
 const http = require('http');
-const request = require('request');
-const cheerio = require('cheerio');
+const { Client } = require('pg');
 const config = require('./config.json');
+const client = new Client(config.sql);
 
-var all_data={"slack": {}, "hackathon": {}, "summit": {"count": 4}};
+client.connect();
 
-function craw_slack() {
-  request(config.slack_api, function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-      var _data = JSON.parse(body);
-      all_data['slack'] = _data;
-    }
-  });
-}
-function craw_database() {
-  request(config.g0v_database, function (error, response, body) {
-    if (!error && response.statusCode == 200) {
-      //console.log(body);
-      var $ = cheerio.load(body);
-      all_data['hackathon']['proposals'] = $('tr').length - 3;
-      var last_row = $($('tr')[$('tr').length-1]);
-      all_data['hackathon']['count'] = Number($($('td', last_row)[1]).text());
-      all_data['hackathon']['current_title'] = $($('td', last_row)[2]).text();
-    }
-    else {
-        console.log("g0v database error");
-    }
-  });
-}
-
-craw_slack();
-craw_database();
-
-var app = http.createServer(function(req,res){
+var app = http.createServer(function(req,res) {
     res.setHeader('Content-Type', 'application/json');
-    res.end(JSON.stringify(all_data));
+    client.query(`SELECT data FROM dashboard.counter LIMIT 1;`, (error, result) => {
+      if (error) {
+        console.log(error.stack);
+        res.end(`"error": ${error.stack}`);
+      } else {
+        _data = result.rows[0];
+        res.end(JSON.stringify(_data));
+      }
+    });
 });
 
 console.log("listen to "+config.port);
