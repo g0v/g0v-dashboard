@@ -1,0 +1,12 @@
+{
+  "port": 80,
+  "g0v_database": "https://docs.google.com/spreadsheets/d/e/2PACX-1vT0oqWKBwSjyUo5k9uPTJItYkSpxZmpz0QFH65myqXasM9K7ldzuEY1eN6lGElTKlz52TozB94Os7oG/pubhtml?gid=1563040282&single=true",
+  "slack_api": "https://g0v-slack-archive.g0v.ronny.tw/index/count",
+  "sql": {
+    "user": "",
+    "host": "",
+    "database": "",
+    "password": "",
+    "port": 5432
+  }
+}
