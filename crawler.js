@@ -1,10 +1,28 @@
 const { Client } = require('pg');
-const http = require('http');
 const request = require('request');
 const cheerio = require('cheerio');
 const config = require('./config.json');
 
-const client = new Client(config.sql);
+var sql_config;
+if(config.sql) {
+    sql_config = config.sql;
+} else {
+    var url = process.env.DATABASE_URL;
+    url = url.replace("pgsql://","");
+    url = url.replace(":","/");
+    url = url.replace("@","/");
+    url = url.split("/");
+    console.log(url);
+    sql_config = {
+        "user": url[0],
+        "host": url[2],
+        "database": url[3],
+        "password": url[1],
+        "port": 5432
+    }
+}
+
+const client = new Client(sql_config);
 
 var all_data={"slack": {}, "hackathon": {}, "summit": {"count": 4}};
 
