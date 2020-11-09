@@ -14,5 +14,8 @@ index.js為後端
 
 ``
 npm i
+``
+
+``
 node index.js
 ``
