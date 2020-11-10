@@ -51,7 +51,7 @@ function craw_database() {
         var $ = cheerio.load(body);
         all_data['hackathon']['proposals'] = $('tr').length - 3;
         var last_row = $($('tr')[$('tr').length-1]);
-        all_data['hackathon']['count'] = Number($($('td', last_row)[1]).text());
+        all_data['hackathon']['count'] = Number($($('td', last_row)[1]).text())+1;
         all_data['hackathon']['current_title'] = $($('td', last_row)[2]).text();
         console.log("g0v database get");
         resolve();
