@@ -31,7 +31,7 @@ var app = http.createServer(function(req,res) {
 	res.setHeader('Access-Control-Request-Method', '*');
 	res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
 	res.setHeader('Access-Control-Allow-Headers', '*');
-    client.query(`SELECT data FROM dashboard.counter ORDER BY create_at DESC LIMIT 1;`, (error, result) => {
+    client.query(`SELECT * FROM dashboard.counter ORDER BY create_at DESC LIMIT 1;`, (error, result) => {
       if (error) {
         console.log(error.stack);
         res.end(`"error": ${error.stack}`);
