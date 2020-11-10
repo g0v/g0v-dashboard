@@ -28,18 +28,34 @@ client.connect();
 var app = http.createServer(function(req,res) {
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Access-Control-Allow-Origin', '*');
-	res.setHeader('Access-Control-Request-Method', '*');
-	res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
-	res.setHeader('Access-Control-Allow-Headers', '*');
-    client.query(`SELECT * FROM dashboard.counter ORDER BY create_at DESC LIMIT 1;`, (error, result) => {
-      if (error) {
-        console.log(error.stack);
-        res.end(`"error": ${error.stack}`);
-      } else {
-        _data = result.rows[0];
-        res.end(JSON.stringify(_data));
-      }
-    });
+  	res.setHeader('Access-Control-Request-Method', '*');
+  	res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+  	res.setHeader('Access-Control-Allow-Headers', '*');
+    if(req.url=='/') {
+      client.query(`SELECT * FROM dashboard.counter ORDER BY create_at DESC LIMIT 1;`, (error, result) => {
+        if (error) {
+          console.log(error.stack);
+          res.end(`"error": ${error.stack}`);
+        } else {
+          _data = result.rows[0];
+          res.end(JSON.stringify(_data));
+        }
+      });
+    }
+    else if(req.url=='/all') {
+      client.query(`SELECT * FROM dashboard.counter ORDER BY create_at DESC;`, (error, result) => {
+        if (error) {
+          console.log(error.stack);
+          res.end(`"error": ${error.stack}`);
+        } else {
+          _data = result.rows;
+          res.end(JSON.stringify(_data));
+        }
+      });
+    }
+    else {
+      res.end(`"error": "wrong url"`);
+   }
 });
 
 console.log("listen to "+config.port);
