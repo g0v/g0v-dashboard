@@ -24,7 +24,7 @@ if(config.sql) {
 
 const client = new Client(sql_config);
 
-var all_data={"slack": {}, "hackathon": {}, "summit": {"count": 4}, "fanpage": {}};
+var all_data={"slack": {}, "hackathon": {}, "summit": {"count": 4}, "fanpage": {}, "github": {}};
 
 async function a(){
   await fetch(config.slack_api)
@@ -56,6 +56,18 @@ async function a(){
       "follow": follow
     }
     console.log("g0v fanpage get!");
+  });
+
+  await fetch('https://api.github.com/orgs/g0v', {
+      "header": {
+          "Accept": "application/vnd.github.v3+json"
+      }
+      })
+  .then(res => res.text())
+  .then(body => {
+    var _org = JSON.parse(body);
+    all_data['github']['repos'] = _org.public_repos;
+    console.log("gov github get!");
   });
 }
 
