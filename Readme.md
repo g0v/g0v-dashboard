@@ -10,7 +10,7 @@ index.js為後端
 
 > 後端目前放在middle2，一天會做一次cache
 
-> [middle2 api](http://yunlin-teng-437911.middle2.me/)
+> api http://yunlin-teng-437911.middle2.me/all
 
 ``
 npm i
