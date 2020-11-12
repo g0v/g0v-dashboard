@@ -49,8 +49,8 @@ async function a(){
   .then(res => res.text())
   .then(body => {
     var $ = cheerio.load(body);
-    var like = Number($("body").text().match('[0-9,]*(?= 人說這讚)')[0].replace(",",""));
-    var follow = Number($("body").text().match('[0-9,]*(?= 人在追蹤)')[0].replace(",",""));
+    var like = Number($("body").text().match('[0-9,]* 人說這讚')[0].replace(",","").replace(" 人說這讚",""));
+    var follow = Number($("body").text().match('[0-9,]* 人在追蹤')[0].replace(",","").replace(" 人在追蹤",""));
     all_data['fanpage'] = {
       "like": like,
       "follow": follow
