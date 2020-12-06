@@ -45,7 +45,7 @@ async function a(){
     console.log("g0v database get!");
   });
 
-  await fetch(config.g0v_fanpage)
+  await fetch(config.g0v_fanpage,  {headers: {'Accept-Language': 'zh-TW'}})
   .then(res => res.text())
   .then(body => {
     var $ = cheerio.load(body);
