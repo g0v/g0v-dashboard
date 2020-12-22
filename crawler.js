@@ -26,7 +26,7 @@ const client = new Client(sql_config);
 
 var all_data={"slack": {}, "hackathon": {}, "summit": {"count": 4}, "fanpage": {}, "github": {}};
 
-async function a(){
+async function a(){  
   await fetch(config.slack_api)
   .then(res => res.text())
   .then(body => {
@@ -38,11 +38,16 @@ async function a(){
   .then(res => res.text())
   .then(body => {
     var $ = cheerio.load(body);
-    all_data['hackathon']['proposals'] = $('tr').length - 3;
-    var last_row = $($('tr')[$('tr').length-1]);
-    all_data['hackathon']['count'] = Number($($('td', last_row)[1]).text())+1;
-    all_data['hackathon']['current_title'] = $($('td', last_row)[2]).text();
-    console.log("g0v database get!");
+    if($('tr').length > 0) {
+      all_data['hackathon']['proposals'] = $('tr').length - 3;
+      var last_row = $($('tr')[$('tr').length-1]);
+      all_data['hackathon']['count'] = Number($($('td', last_row)[1]).text())+1;
+      all_data['hackathon']['current_title'] = $($('td', last_row)[2]).text();
+      console.log("g0v database get!");
+    }
+    else {
+      console.log("g0v database get error");
+    }
   });
 
   await fetch(config.g0v_fanpage,  {headers: {'Accept-Language': 'zh-TW'}})
@@ -51,11 +56,15 @@ async function a(){
     var $ = cheerio.load(body);
     var like = Number($("body").text().match('[0-9,]* 人說這讚')[0].replace(",","").replace(" 人說這讚",""));
     var follow = Number($("body").text().match('[0-9,]* 人在追蹤')[0].replace(",","").replace(" 人在追蹤",""));
-    all_data['fanpage'] = {
-      "like": like,
-      "follow": follow
+    if(like == undefined || follow == undefined)
+      console.log("g0v fanpage get error");
+    else {
+      all_data['fanpage'] = {
+        "like": like,
+        "follow": follow
+      }
+      console.log("g0v fanpage get!");  
     }
-    console.log("g0v fanpage get!");
   });
 
   await fetch('https://api.github.com/orgs/g0v', {
@@ -71,11 +80,19 @@ async function a(){
   });
 }
 
-a().then(() => {
-  console.log(all_data);
-  client.connect();
-  client.query(`INSERT INTO dashboard.counter VALUES(\'${JSON.stringify(all_data)}\');`, (err, res) => {
-    console.log(err, res);
-    client.end();
-  });
+client.connect();
+client.query(`SELECT * FROM dashboard.counter ORDER BY create_at DESC LIMIT 1;`, (error, result) => {
+  if (error) {
+    console.log(error.stack);
+  } else {
+    all_data = result.rows[0]['data'];
+    console.log("old data:", all_data);
+    a().then(() => {
+      console.log(all_data);
+      client.query(`INSERT INTO dashboard.counter VALUES(\'${JSON.stringify(all_data)}\');`, (err, res) => {
+        console.log(err, res);
+        client.end();
+      });
+    });
+  }
 });
