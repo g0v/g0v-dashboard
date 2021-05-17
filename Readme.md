@@ -10,8 +10,9 @@ index.js為後端
 
 > 後端目前放在middle2，一天會做一次cache
 
-> api http://yunlin-teng-437911.middle2.me/all
+> 獲取全部紀錄的api http://yunlin-teng-437911.middle2.me/all
 
+> 獲取最新資料的api http://yunlin-teng-437911.middle2.me/
 ``
 npm i
 ``
