@@ -14,10 +14,8 @@ index.js為後端
 
 > 獲取最新資料的api http://yunlin-teng-437911.middle2.me/
 
-``
+# 安裝方式
+``` bash
 npm i
-``
-
-``
 node index.js
-``
+```
