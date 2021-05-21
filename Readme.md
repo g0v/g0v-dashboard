@@ -10,9 +10,9 @@ index.js為後端
 
 > 後端目前放在middle2，一天執行一次 crawler.js 做一次cache
 
-> 獲取全部紀錄的api http://yunlin-teng-437911.middle2.me/all
+> 獲取全部紀錄的api http://dashboard.g0v.tw/all
 
-> 獲取最新資料的api http://yunlin-teng-437911.middle2.me/
+> 獲取最新資料的api http://dashboard.g0v.tw/
 
 # 安裝方式
 ``` bash
