@@ -53,18 +53,24 @@ async function a(){
   await fetch(config.g0v_fanpage,  {headers: {'Accept-Language': 'zh-TW'}})
   .then(res => res.text())
   .then(body => {
+    console.log(body);
     var $ = cheerio.load(body);
-    var like = Number($("body").text().match('[0-9,]* 人說這讚')[0].replace(",","").replace(" 人說這讚",""));
-    var follow = Number($("body").text().match('[0-9,]* 人在追蹤')[0].replace(",","").replace(" 人在追蹤",""));
+    var like = follow = undefined;
+    var like_match = $("body").text().match('[0-9,]* 人說這讚');
+    var follow_match = $("body").text().match('[0-9,]* 人在追蹤');
+    if(like_match.length > 0)
+      like = Number(like_match[0].replace(",","").replace(" 人說這讚",""));
+    if(follow_match.length > 0)
+      follow = Number(follow_match[0].replace(",","").replace(" 人在追蹤",""));
+
     if(like == undefined || follow == undefined)
       console.log("g0v fanpage get error");
-    else {
-      all_data['fanpage'] = {
-        "like": like,
-        "follow": follow
-      }
-      console.log("g0v fanpage get!");  
+
+    all_data['fanpage'] = {
+      "like": like,
+      "follow": follow
     }
+    console.log("g0v fanpage get!");  
   });
 
   await fetch('https://api.github.com/orgs/g0v', {
@@ -81,6 +87,7 @@ async function a(){
 }
 
 client.connect();
+
 client.query(`SELECT * FROM dashboard.counter ORDER BY create_at DESC LIMIT 1;`, (error, result) => {
   if (error) {
     console.log(error.stack);
@@ -89,6 +96,7 @@ client.query(`SELECT * FROM dashboard.counter ORDER BY create_at DESC LIMIT 1;`,
     console.log("old data:", all_data);
     a().then(() => {
       console.log(all_data);
+      
       client.query(`INSERT INTO dashboard.counter VALUES(\'${JSON.stringify(all_data)}\');`, (err, res) => {
         console.log(err, res);
         client.end();
@@ -96,3 +104,5 @@ client.query(`SELECT * FROM dashboard.counter ORDER BY create_at DESC LIMIT 1;`,
     });
   }
 });
+
+client.end();
