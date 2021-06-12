@@ -53,17 +53,17 @@ async function a(){
   await fetch(config.g0v_fanpage,  {headers: {'Accept-Language': 'zh-TW'}})
   .then(res => res.text())
   .then(body => {
-    console.log(body);
+    //console.log(body);
     var $ = cheerio.load(body);
-    var like = follow = undefined;
-    var like_match = $("body").text().match('[0-9,]* 人說這讚');
+    var like = follow = null;
+    var like_match = $("body").text().match('[0-9,]* 個讚');
     var follow_match = $("body").text().match('[0-9,]* 人在追蹤');
-    if(like_match.length > 0)
-      like = Number(like_match[0].replace(",","").replace(" 人說這讚",""));
-    if(follow_match.length > 0)
+    if(like_match != null)
+      like = Number(like_match[0].replace(",","").replace(" 個讚",""));
+    if(follow_match != null)
       follow = Number(follow_match[0].replace(",","").replace(" 人在追蹤",""));
 
-    if(like == undefined || follow == undefined)
+    if(like == null || follow == null)
       console.log("g0v fanpage get error");
 
     all_data['fanpage'] = {
@@ -104,5 +104,3 @@ client.query(`SELECT * FROM dashboard.counter ORDER BY create_at DESC LIMIT 1;`,
     });
   }
 });
-
-client.end();
