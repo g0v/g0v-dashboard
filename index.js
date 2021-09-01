@@ -3,13 +3,13 @@ const { Client } = require('pg');
 const config = require('./config.json');
 
 var sql_config;
-if(config.sql) {
+if (config.sql) {
     sql_config = config.sql;
 } else {
     var url = process.env.DATABASE_URL;
-    url = url.replace("pgsql://","");
-    url = url.replace(":","/");
-    url = url.replace("@","/");
+    url = url.replace("pgsql://", "");
+    url = url.replace(":", "/");
+    url = url.replace("@", "/");
     url = url.split("/");
     console.log(url);
     sql_config = {
@@ -25,40 +25,55 @@ const client = new Client(sql_config);
 
 client.connect();
 
-var app = http.createServer(function(req,res) {
+var app = http.createServer(function (req, res) {
     res.setHeader('Content-Type', 'application/json');
     res.setHeader('Access-Control-Allow-Origin', '*');
-  	res.setHeader('Access-Control-Request-Method', '*');
-  	res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
-  	res.setHeader('Access-Control-Allow-Headers', '*');
-    if(req.url=='/') {
-      client.query(`SELECT * FROM dashboard.counter ORDER BY create_at DESC LIMIT 1;`, (error, result) => {
-        if (error) {
-          console.log(error.stack);
-          res.end(`"error": ${error.stack}`);
-        } else {
-          _data = result.rows[0];
-          res.end(JSON.stringify(_data));
-        }
-      });
+    res.setHeader('Access-Control-Request-Method', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET');
+    res.setHeader('Access-Control-Allow-Headers', '*');
+    if (req.url == '/') {
+        client.query(`SELECT * FROM dashboard.counter ORDER BY create_at DESC LIMIT 1;`, (error, result) => {
+            if (error) {
+                console.log(error.stack);
+                res.end(`"error": ${error.stack}`);
+            } else {
+                _data = result.rows[0];
+                res.end(JSON.stringify(_data));
+            }
+        });
     }
-    else if(req.url=='/all') {
-      client.query(`SELECT * FROM dashboard.counter ORDER BY create_at DESC;`, (error, result) => {
-        if (error) {
-          console.log(error.stack);
-          res.end(`"error": ${error.stack}`);
-        } else {
-          _data = result.rows;
-          res.end(JSON.stringify(_data));
-        }
-      });
+    else if (req.url == '/all') {
+        client.query(`SELECT * FROM dashboard.counter ORDER BY create_at DESC;`, (error, result) => {
+            if (error) {
+                console.log(error.stack);
+                res.end(`"error": ${error.stack}`);
+            } else {
+                _data = result.rows;
+                res.end(JSON.stringify(_data));
+            }
+        });
+    }
+    else if (req.url == '/health') {
+        client.query(`SELECT * FROM dashboard.counter WHERE create_at >= now() - INTERVAL '1' DAY;`, (error, result) => {
+            if (error) {
+                console.log(error.stack);
+                res.end(`{"error": ${error.stack}}`);
+            } else {
+                if(result.rows.length == 0) {
+                    res.end(`{"error": "data outdated"}`);
+                }
+                else {
+                    res.end(`{"health": "good"}`);
+                }
+            }
+        });
     }
     else {
-      res.end(`"error": "wrong url"`);
-   }
+        res.end(`"error": "wrong url"`);
+    }
 });
 
-console.log("listen to "+config.port);
+console.log("listen to " + config.port);
 app.listen(config.port);
 
 // > {"a":1}
