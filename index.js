@@ -54,7 +54,7 @@ var app = http.createServer(function (req, res) {
         });
     }
     else if (req.url == '/health') {
-        client.query(`SELECT * FROM dashboard.counter WHERE create_at >= now() - INTERVAL '1' DAY;`, (error, result) => {
+        client.query(`SELECT * FROM dashboard.counter WHERE create_at >= now() - INTERVAL '36' HOUR;`, (error, result) => {
             if (error) {
                 console.log(error.stack);
                 res.end(`{"error": ${error.stack}}`);
