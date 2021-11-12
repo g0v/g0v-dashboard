@@ -32,6 +32,9 @@ const client = new Client(sql_config);
 var all_data = { "slack": {}, "hackathon": {}, "summit": { "count": 4 }, "fanpage": {}, "github": {} };
 
 async function a() {
+    let to = setTimeout(() => {
+        throw new Error("Timeout!!");
+    }, 600000);
     await fetch(config.slack_api, { agent: proxyAgent })
         .then(res => res.text())
         .then(body => {
@@ -98,6 +101,7 @@ async function a() {
             var _org = JSON.parse(body);
             all_data['github']['repos'] = _org.public_repos;
             console.log("gov github get!");
+            clearTimeout(to);
         });
 }
 
