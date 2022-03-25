@@ -80,14 +80,16 @@ async function a() {
             if (follow_match != null)
                 follow = Number(follow_match[0].replace(",", "").replace(" 人在追蹤", ""));
 
-            if (like == null || follow == null)
+            if (like == null || follow == null) {
                 console.log("g0v fanpage get error");
-
-            all_data['fanpage'] = {
-                "like": like,
-                "follow": follow
             }
-            console.log("g0v fanpage get!");
+            else {
+                all_data['fanpage'] = {
+                    "like": like,
+                    "follow": follow
+                }
+                console.log("g0v fanpage get!");
+            }
         });
 
     await fetch('https://api.github.com/orgs/g0v', {
