@@ -139,6 +139,7 @@ client.query(`SELECT * FROM dashboard.counter ORDER BY create_at DESC LIMIT 1;`,
             client.query(`INSERT INTO dashboard.counter VALUES(\'${JSON.stringify(all_data)}\');`, (err, res) => {
                 console.log(err, res);
                 client.end();
+                throw "end";
             });
         });
     }
