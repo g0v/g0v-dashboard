@@ -69,7 +69,7 @@ async function a() {
 
     let to_fb = setTimeout(() => {
         controller.abort();
-    }, 100);
+    }, 10000);
     try {
         const res = await fetch(config.g0v_fanpage, { headers: { 'Accept-Language': 'zh-TW' }, agent: proxyAgent, signal: controller.signal });
         const body = res.text();
