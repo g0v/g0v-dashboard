@@ -1,10 +1,11 @@
-const { Client } = require('pg');
 const fetch = require('node-fetch');
+const { AbortError } = require('node-fetch');
+const { Client } = require('pg');
 const cheerio = require('cheerio');
 const config = require('./config.json');
 const HttpsProxyAgent = require('https-proxy-agent');
 var proxyAgent = undefined;
-if(config.proxy) {
+if (config.proxy) {
     proxyAgent = new HttpsProxyAgent(config.proxy);
 }
 
@@ -26,16 +27,15 @@ if (config.sql) {
         "port": 5432
     }
 }
-
 const client = new Client(sql_config);
-
 var all_data = { "slack": {}, "hackathon": {}, "summit": { "count": 4 }, "fanpage": {}, "github": {} };
-
 async function a() {
+    const AbortController = globalThis.AbortController || await import('abort-controller');
+    const controller = new AbortController();
     let to = setTimeout(() => {
         throw new Error("Timeout!!");
-    }, 600000);
-    await fetch(config.slack_api, { agent: proxyAgent })
+    }, 120000);
+    await fetch(config.slack_api)
         .then(res => res.text())
         .then(body => {
             console.log(body);
@@ -43,7 +43,7 @@ async function a() {
             console.log("slack api get!");
         });
 
-    await fetch(config.g0v_database, { agent: proxyAgent })
+    await fetch(config.g0v_database)
         .then(res => res.text())
         .then(body => {
             var $ = cheerio.load(body);
@@ -67,36 +67,42 @@ async function a() {
             }
         });
 
-    await fetch(config.g0v_fanpage, { headers: { 'Accept-Language': 'zh-TW' }, agent: proxyAgent })
-        .then(res => res.text())
-        .then(body => {
-            //console.log(body);
-            var $ = cheerio.load(body);
-            var like = follow = null;
-            var like_match = $("body").text().match('[0-9,]* 個讚');
-            var follow_match = $("body").text().match('[0-9,]* 人在追蹤');
-            if (like_match != null)
-                like = Number(like_match[0].replace(",", "").replace(" 個讚", ""));
-            if (follow_match != null)
-                follow = Number(follow_match[0].replace(",", "").replace(" 人在追蹤", ""));
+    let to_fb = setTimeout(() => {
+        controller.abort();
+    }, 100);
+    try {
+        const res = await fetch(config.g0v_fanpage, { headers: { 'Accept-Language': 'zh-TW' }, agent: proxyAgent, signal: controller.signal });
+        const body = res.text();
+        //console.log(body);
+        var $ = cheerio.load(body);
+        var like = follow = null;
+        var like_match = $("body").text().match('[0-9,]* 個讚');
+        var follow_match = $("body").text().match('[0-9,]* 人在追蹤');
+        if (like_match != null)
+            like = Number(like_match[0].replace(",", "").replace(" 個讚", ""));
+        if (follow_match != null)
+            follow = Number(follow_match[0].replace(",", "").replace(" 人在追蹤", ""));
 
-            if (like == null || follow == null) {
-                console.log("g0v fanpage get error");
+        if (like == null || follow == null) {
+            throw new Error("g0v fanpage get error!!");
+        }
+        else {
+            all_data['fanpage'] = {
+                "like": like,
+                "follow": follow
             }
-            else {
-                all_data['fanpage'] = {
-                    "like": like,
-                    "follow": follow
-                }
-                console.log("g0v fanpage get!");
-            }
-        });
+            console.log("g0v fanpage get!");
+        }
+    } catch (error) {
+        console.log("fb fetch error");
+    } finally {
+        clearTimeout(to_fb);
+    }
 
     await fetch('https://api.github.com/orgs/g0v', {
         "header": {
             "Accept": "application/vnd.github.v3+json"
-        },
-        agent: proxyAgent
+        }
     })
         .then(res => res.text())
         .then(body => {
@@ -114,9 +120,9 @@ client.query(`SELECT * FROM dashboard.counter ORDER BY create_at DESC LIMIT 1;`,
         console.log(error.stack);
     } else {
         all_data = result.rows[0]['data'];
-        console.log("old data:", all_data);
+        console.log("old data: ", all_data);
         a().then(() => {
-            console.log(all_data);
+            console.log("new data: ", all_data);
             client.query(`INSERT INTO dashboard.counter VALUES(\'${JSON.stringify(all_data)}\');`, (err, res) => {
                 console.log(err, res);
                 client.end();
