@@ -27,7 +27,7 @@ if (config.sql) {
     }
 }
 const client = new Client(sql_config);
-var all_data = { "slack": {}, "hackathon": {}, "summit": { "count": 4 }, "fanpage": {}, "github": {} };
+var all_data = { "slack": {}, "hackathon": {}, "summit": {}, "fanpage": {}, "github": {} };
 const arrayOfPromises = [
     new Promise((resolve, reject) => {
         let to = setTimeout(() => {
@@ -135,6 +135,7 @@ client.query(`SELECT * FROM dashboard.counter ORDER BY create_at DESC LIMIT 1;`,
         all_data = result.rows[0]['data'];
         console.log("old data: ", all_data);
         Promise.all(arrayOfPromises).then(() => {
+            all_data['summit'] = { "count": 4 };
             console.log("new data: ", all_data);
             client.query(`INSERT INTO dashboard.counter VALUES(\'${JSON.stringify(all_data)}\');`, (err, res) => {
                 console.log(err, res);
