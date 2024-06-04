@@ -135,7 +135,7 @@ client.query(`SELECT * FROM dashboard.counter ORDER BY create_at DESC LIMIT 1;`,
         all_data = result.rows[0]['data'];
         console.log("old data: ", all_data);
         Promise.all(arrayOfPromises).then(() => {
-            all_data['summit'] = { "count": 4 };
+            all_data['summit'] = { "count": 5 };
             console.log("new data: ", all_data);
             client.query(`INSERT INTO dashboard.counter VALUES(\'${JSON.stringify(all_data)}\');`, (err, res) => {
                 console.log(err, res);
